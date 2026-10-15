@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: sidecar
+  labels:
+    run: sidecar
+spec:
+  initContainers:
+    - name: initsvc
+      image: busybox
+      command:
+        - sh
+        - -c
+        - |
+          until nslookup init-svc.default.svc.cluster.local; do
+            date
+            echo "waiting for svc"
+            sleep 2
+          done
+  containers:
+    - name: sidecar
+      image: busybox
+      command:
+        - sh
+        - -c
+        - echo "The app is running!" && sleep 3600
+      resources: {}
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always

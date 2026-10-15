@@ -1,0 +1,7 @@
+apiVersion: v1
+data:
+  password: dGVzdGU=
+  username: ZGV2
+kind: Secret
+metadata:
+  name: dev-login

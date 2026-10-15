@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    run: sidecar
+  name: sidecar
+spec:
+  containers:
+  - command:
+    - sh
+    - -c
+    - while true; do /var/log/nginx/error.log; sleep 20; done
+    image: busybox
+    name: sidecar
+    resources: {}
+    volumesMounts:
+      - name: log-vol
+        mountPath: /var/log/nginx
+  - name: nginx
+    image: nginx
+    volumeMount:
+      - name: log-vol
+        mountPath: /var/log/nginx
+  volumes:
+    - name: log-vol
+      emptyDir: {}
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+status: {}
