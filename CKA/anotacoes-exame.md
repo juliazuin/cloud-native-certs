@@ -14,3 +14,4 @@ utilizar o comando kubectl auth can-i -> vai permitir que voce verifique que com
 adicionais, comandos "--as" permite impersonificacao de outros usuarios e "--list" lista todas permissoes de um usuario
 
 É possivel atachar uma cluster role a multilpos usuarios/groups/service Accounts via role ou cluster rolebinding. Durante o exame pode salvar tempo somente criando uma role binding e atribuindo a uma role existente (view)
+

@@ -1,0 +1,8 @@
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+- role: control-plane
+- role: worker
+
+
+kubeadm join kind-control-plane:6443 --token t5mckr.a6jg5okxqdse2tkl --discovery-token-ca-cert-hash sha256:0b38c6cbab32974ee7ac38a46343267093614dba5e41e673b24013d8e53227d6

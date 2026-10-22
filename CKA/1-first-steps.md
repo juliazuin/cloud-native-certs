@@ -170,5 +170,53 @@ system-node-critical      2000001000   false            22h   PreemptLowerPriori
 Quanto maior o numero maior a prioridade
 
 ## Running applications in kubernetes
-pagina 125
-ou 103 do livro
+
+Deployments usam uma estrategia de deploy das aplicacoes, em caso de alteracao de imagem ou de outros parametros, a configuracao fica em spec.strategy e o default é rollingUpdate, que mantem alguns pods disponiveis ate que os novos com a alteracao fiquem up tambem. Outro tipo de estrategia `recreate strategy`, nesse casoele vai terminar as replicas antigas antes de criar as novas.
+
+
+Cordon e drain nodes
+
+Passo a passo
+
+Primeiro marcamos o worker como "nao schedulavel"
+```sh
+kubectl cordon kind-worker 
+```
+
+No caso aqui so temos 1 worker e o controlplane, devemos remover o taint o controlplane para q os pods consigam ser agendados
+```sh
+kubectl taint node  kind-control-plane node-role.kubernetes.io/control-plane:NoSchedule-
+```
+
+Depois drenar o worker 
+```sh
+kubectl drain kind-worker --ignore-daemonsets 
+```
+
+E habilitar novamente o agendamento de pods no worker
+```sh
+kubectl uncordon kind-worker 
+```
+
+
+Adicionando nodes em um cluster
+
+```sh
+kubeadm token create --print-join-command
+
+> kubeadm join kind-control-plane:6443 --token t5mckr.a6jg5okxqdse2tkl --discovery-token-ca-cert-hash sha256:0b38c6cbab32974ee7ac38a46343267093614dba5e41e673b24013d8e53227d6
+```
+
+Para executar isso vamos criar um novo cluster com apenas 1 nó e deletando o worker node desse novo cluster.
+Depois disso vamos dar exec dentro desse worker para reseta-lo para limpar sua afiliacao com o cluster antigo
+
+> docker exec -it cka-worker bash
+
+```sh
+kubeadm reset
+```
+
+Em seguida aplicamos o comando de join que foi output do primeiro passo, logando novamente no cluster principal é pra termos um node adicional em estado "Ready"
+
+
+## Communication in a Kubernetes cluster

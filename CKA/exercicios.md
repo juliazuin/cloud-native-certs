@@ -56,6 +56,21 @@ allow.textmode=true
 how.nice.to.look=fairlyNice
 
 
+ Using kubectl, create a Deployment named apache using the image httpd:latest
+with one replica. After the Deployment is running, scale the replicas up to 5.
+2 Update the image for the Deployment apache from httpd:latest to httpd:
+2.4.63. Do not create a new YAML file or edit the existing resource (only use
+kubectl).
+3 Using kubectl, view the events of the ReplicaSet that was created as a result
+of the image change from the previous exercise.
+4 Using kubectl, roll back to the previous version of the Deployment named
+apache.
+5 For the existing Deployment named apache, change the rollout strategy for a
+Deployment to Recreate.
+
+
+
+
 possiveis perguntas do exame
 EXAM TASK Apply the label disktype=ssd to the worker node named kind
 -worker, and schedule a pod named ssd-pod to the kind-worker node by
@@ -63,3 +78,48 @@ using a node selector.
 
 
 node worker-1 tem 500MB de memoria e .5 de cpu disponivel. Schedule um pod que permita essa limitacao de memoria e cpu e coloque no no.
+
+
+EXAM TASK The node named kind-worker in the cluster is experiencing prob-
+lems with leaking memory. You must take down the node for maintenance by
+Licensed to Julia Zuin <zuinjulia@hotmail.com>
+122 CHAPTER 5 Running applications in Kubernetes
+first disabling the scheduling of new pods to the node kind-worker. Then,
+evict all pods that are currently running on kind-worker. Finally, once you’ve
+verified that there are no pods running on kind-worker, enable scheduling
+once again.
+
+EXAM TASK There’s a third node in the cluster named ik8s, but it is not
+appearing when you perform the kubectl get nodes command. The name of
+the node is node02. Allow node02 to join the cluster by recreating the join
+command, and ensure that the node is in a Ready state when you list all the
+nodes in the cluster.
+
+From a three-node cluster, cordon one of the worker nodes. Schedule a pod
+without a NodeSelector. Uncordon the worker node and edit the pod, applying
+a new node name to the YAML (set it to the node that was just uncordoned).
+After replacing the YAML, see if the pod is scheduled to the recently uncor-
+doned node.
+7 Start a basic nginx Deployment, and remove the taint from the control plane
+node so that pods don’t need a toleration to be scheduled to it. Add a node
+selector to the pod spec within the Deployment, and see if the pod is now run-
+ning on the control plane node
+
+
+Practice exercises
+8 Install operator https://cert-manager.io/, a CNCF project used to generate
+a TLS certificate for Kubernetes workloads. Navigate the documentation, and
+check out different ways to install this operator. Install it on the namespace
+my-cert-manager using the Helm method. Please note that installing CRDs
+is part of the process as long as you pass the Helm argument --set
+crds.enabled=true. After installation, check and list all CRDs installed that
+belong to the cert-manager API group. Check whether the operator is running.
+9 Install another operator—this time the popular Argo CD, a CNCF project used
+for GitOps. See details at https://argo-cd.readthedocs.io/. Install the operator
+via the manual way, following the steps at https://mng.bz/8XQ5. Choose the
+installation option of Non High Availability, with the option of only requiring
+namespace level privileges. In this mode, you will need to install the CRDs sep-
+arately, which are at https://mng.bz/EwKX. The documentation provides the
+installation command line using kubectl apply -k (the parameter -k uses the
+Kustomize option). Once the operator and CRDs are installed, check the CRDs
+of Argo CD, and see whether the operator is running.
