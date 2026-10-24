@@ -1,3 +1,5 @@
+exercicios praticos
+
 Practice exercises
 1 Create a new role named sa-creator that will allow creating Service Accounts.
 2 Create a role binding that is associated with the previous sa-creator role named sa-creator-binding that will bind to the user Sandra.
@@ -79,7 +81,51 @@ using a node selector.
 
 node worker-1 tem 500MB de memoria e .5 de cpu disponivel. Schedule um pod que permita essa limitacao de memoria e cpu e coloque no no.
 
+Practice exercises
+8 Install operator https://cert-manager.io/, a CNCF project used to generate
+a TLS certificate for Kubernetes workloads. Navigate the documentation, and
+check out different ways to install this operator. Install it on the namespace
+my-cert-manager using the Helm method. Please note that installing CRDs
+is part of the process as long as you pass the Helm argument --set
+crds.enabled=true. After installation, check and list all CRDs installed that
+belong to the cert-manager API group. Check whether the operator is running.
+9 Install another operator—this time the popular Argo CD, a CNCF project used
+for GitOps. See details at https://argo-cd.readthedocs.io/. Install the operator
+via the manual way, following the steps at https://mng.bz/8XQ5. Choose the
+installation option of Non High Availability, with the option of only requiring
+namespace level privileges. In this mode, you will need to install the CRDs sep-
+arately, which are at https://mng.bz/EwKX. The documentation provides the
+installation command line using kubectl apply -k (the parameter -k uses the
+Kustomize option). Once the operator and CRDs are installed, check the CRDs
+of Argo CD, and see whether the operator is running.
 
+Practice exercises
+1 Exec into a pod, and cat out the DNS resolver file to see the IP address of the
+DNS server that the pod uses to resolve domain names.
+Open the file that contains the configuration for the kubelet, and change the
+value for clusterDNS to 100.96.0.10. Save and quit the file.
+2 Stop and reload the kubelet daemon. Verify that the Service is active and
+running.
+3 Locate the kube-dns Service. Try to edit the Service in place by changing the
+value of both clusterIP and ClusterIPs to 100.96.0.10. When the values can-
+not be updated, force a replacement of the Service with the correct kubectl
+command-line argument.
+4 Edit the ConfigMap that contains the kubelet configuration. Change the IP
+address value that is set for clusterDNS to 100.96.0.10. Make sure to edit the
+resource without writing a new YAML file.
+5 Scale the CoreDNS Deployment to three replicas. Verify that the pods have
+been created as a part of that Deployment.
+6 Test access from a pod to a Service by first creating a Deployment with the
+apache image, followed by exposing that Deployment. Create a pod from the
+netshoot image, and verify that you can reach the Service that you just created.
+7 Using the netshoot pod created in the previous exercise, locate the Service in
+the default namespace by its DNS name. Use as few letters as possible for
+DNS search functionality.
+
+
+
+
+## exame
 EXAM TASK The node named kind-worker in the cluster is experiencing prob-
 lems with leaking memory. You must take down the node for maintenance by
 Licensed to Julia Zuin <zuinjulia@hotmail.com>
@@ -106,20 +152,12 @@ selector to the pod spec within the Deployment, and see if the pod is now run-
 ning on the control plane node
 
 
-Practice exercises
-8 Install operator https://cert-manager.io/, a CNCF project used to generate
-a TLS certificate for Kubernetes workloads. Navigate the documentation, and
-check out different ways to install this operator. Install it on the namespace
-my-cert-manager using the Helm method. Please note that installing CRDs
-is part of the process as long as you pass the Helm argument --set
-crds.enabled=true. After installation, check and list all CRDs installed that
-belong to the cert-manager API group. Check whether the operator is running.
-9 Install another operator—this time the popular Argo CD, a CNCF project used
-for GitOps. See details at https://argo-cd.readthedocs.io/. Install the operator
-via the manual way, following the steps at https://mng.bz/8XQ5. Choose the
-installation option of Non High Availability, with the option of only requiring
-namespace level privileges. In this mode, you will need to install the CRDs sep-
-arately, which are at https://mng.bz/EwKX. The documentation provides the
-installation command line using kubectl apply -k (the parameter -k uses the
-Kustomize option). Once the operator and CRDs are installed, check the CRDs
-of Argo CD, and see whether the operator is running.
+EXAM TASK In your cluster, change the IP addresses given to new Services to
+a CIDR range of 100.96.0.0/16. Change the IP address associated with the
+cluster DNS Service to match this new Service range. Proceed to change the
+kubelet configuration so that new Pods can receive the new DNS Service IP
+address and so they can resolve domain names. Edit the kubelet ConfigMap
+so that the kubelet is updated in place and immediately reflected. Upgrade
+the node to receive the new kubelet configuration. Finally, test this by creat-
+ing a new pod and verifying that the pod has the new IP address of the DNS
+Service.

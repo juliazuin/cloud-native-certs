@@ -220,3 +220,22 @@ Em seguida aplicamos o comando de join que foi output do primeiro passo, logando
 
 
 ## Communication in a Kubernetes cluster
+CoreDNS -  responsavel por traduzier hostname em enderecos de IP, existem varios ranges de enderecos de IP em um cluster e todos eles devem ser UNICOS
+
+Ingress e ingress controllers
+
+Para o ingress existem 3 tipos de pathtypes
+Exact - nesse caso o path tem que combinar exatamente o path sendo case-sensitive para dar certo
+Prefix - o path corresponde a URL dividido por / onde os caracteres entre as barras sao o elemento
+ImplementationSpecific - deixa pra o `ingress class` decidir um tipo prefix ou exact path 
+
+
+Services:
+
+ClusterIP - feitos para fazer os pods internamente disponiveis apenas dentro do cluster
+
+NodePort - LoadBalancer - feitos para expor portas e criar acesso de fora do cluster, NodePort expoe uma porta no endereco de IP do node mas o LoadBalancer permite que um loadbalancer externo controle o trafego em cada node port.
+
+ExternalName - nao aloca nenhum endereco de clusterIP nele, apenas cria um registro CNAME dentro do cluster DNS
+
+ 
