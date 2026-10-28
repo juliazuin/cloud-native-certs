@@ -79,7 +79,7 @@ EXAM TASK Apply the label disktype=ssd to the worker node named kind
 using a node selector.
 
 
-node worker-1 tem 500MB de memoria e .5 de cpu disponivel. Schedule um pod que permita essa limitacao de memoria e cpu e coloque no no.
+O node worker-1 tem 500MB de memória e 0.5 de CPU disponível. Schedule um pod que respeite essa limitação de memória e CPU e agende-o no nó.
 
 Practice exercises
 8 Install operator https://cert-manager.io/, a CNCF project used to generate

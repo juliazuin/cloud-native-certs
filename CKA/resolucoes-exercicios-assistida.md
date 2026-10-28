@@ -10,29 +10,29 @@ Service.
 
 
 Alguns conceitos:
-- Nodes CIDR: tambem conhecidos como `internal-IP`, essa e a camada subjacente da cloud/vlan subnet que os workers e o controlplane se conectam com a infra. O Cloud provider gerencia esse range
+- Nodes CIDR: também conhecidos como `internal-IP`, essa é a camada subjacente da cloud/VLAN subnet à qual os workers e o controlplane se conectam. O Cloud provider gerencia esse range.
 
-- Pod CIDR: Tambem conhecido como `Cluster-CIDR`, durante a criacao os pods recebem um endereco de IP  e o range é configurado na instalacao do cluster kubernetes e gerenciada pelo container network interface (CNI, network plugin)
+- Pod CIDR: também conhecido como `Cluster-CIDR`, durante a criação os pods recebem um endereço IP e o range é configurado na instalação do cluster Kubernetes e gerenciado pelo container network interface (CNI, network plugin).
 
-- Service CIDR: tambem conhecida como `Service-Cluster-IP-Range`, porque pods sao recriados a qualquer momento entao existe uma necessidade de abstrair o grupo de pods em um unico range de IP dentro do cluster. Esse range é gerenciado e configurado pelo API Server. ServiceCIDR é um tipo de recurso que nao fica em namesoace que define range de enderecos de virtualIPs que podem ser atribuidos a services tipo ClusterIP, sendo assim todo service desse tipo tem um IP virtual estavel dentro do range do CIDR especificado. 
+- Service CIDR: também conhecido como `Service-Cluster-IP-Range`, porque pods são recriados a qualquer momento, então existe a necessidade de abstrair o grupo de pods em um único range de IP dentro do cluster. Esse range é gerenciado e configurado pelo API Server. ServiceCIDR é um tipo de recurso que não fica em namespace e define um range de endereços de virtual IPs que podem ser atribuídos a services do tipo ClusterIP. Sendo assim, todo service desse tipo tem um IP virtual estável dentro do range do CIDR especificado.
 
-Resolucao:
+Resolução:
 
-1. Atualizar o range do service-CIDR - que é controlado pelo API Server -> dentro do controlplane
+1. Atualizar o range do service-CIDR — que é controlado pelo API Server — dentro do controlplane.
 ```sh
 vim /etc/kubernetes/manifests/kube-apiserver.yaml
 ```
 
-alterando a linha - --service-cluster-ip-range=100.96.0.0/16
+Alterando a linha `--service-cluster-ip-range=100.96.0.0/16`.
 
-Aguardar o pod do APIServer restartar
+Aguardar o pod do APIServer reiniciar.
 
 2. 
 ```sh
 kubectl get servicecidr
 ```
 
-Precisamos deletar por esta com endereco de IP antigo mas antes deve-se deletar os svcs associados com ele
+Precisamos deletar porque está com o endereço IP antigo, mas antes devem-se deletar os svcs associados a ele.
 
 ```sh
 kubectl delete svc kube-dns -n kube-system
@@ -40,7 +40,7 @@ kubectl delete svc kubernetes
 kubectl delete servicecidr kubernetes
 ```
 
-3. Recriar o kubernetes service se nao for recriado automaticamente
+3. Recriar o kubernetes service se não for recriado automaticamente.
 
 ```sh
 cat <<EOF | kubectl create -f -
@@ -62,7 +62,7 @@ spec:
 EOF
 ```
 
-4. Entao recriar o kube-dns service:
+4. Então, recriar o kube-dns service:
 
 ```sh
 cat <<EOF | kubectl create -f -
@@ -93,41 +93,41 @@ spec:
   type: ClusterIP
 EOF
 ```
-5. Ajustar o kubelet
-pode ser feito em dois lugares dentro do arquivo yaml emm manifestos como o apiserver
+5. Ajustar o kubelet.
+Pode ser feito em dois lugares: dentro do arquivo YAML e em manifestos como o apiserver.
 
 ```sh
 vim /var/lib/kubelet/config.yaml
 ```
 
-alterar
+Alterar:
 clusterDNS:
 - 100.96.0.10
 
-E Editar o configmap associado ao kubelet
+E editar o configmap associado ao kubelet:
 
 ```sh
-kubectl edit cm kubelet-config -n kubes-system
+kubectl edit cm kubelet-config -n kube-system
 ```
 
-alterar
+Alterar:
 clusterDNS:
 - 100.96.0.10
 
-Reload o daemon do kubelet e restart no servico do kubelet
+Recarregar o daemon do kubelet e reiniciar o serviço do kubelet.
 
 6. Atualizar kubelet no node
 ```sh
 kubeadm upgrade node phase kubelet-config
 ```
 
-e restart com
+E reiniciar com:
 ```sh
 systemctl daemon-reload
 systemctl restart kubelet
 ```
 
-> Adicionalmente se nao funcionar logar no node worker docker exec -it kind-worker e alterar o mesmo arquivo do kubelet e restartar via systemctl. Entao lancar o netshoot novamente e deve funcionar.
+> Adicionalmente, se não funcionar, faça login no node worker com docker exec -it kind-worker, altere o mesmo arquivo do kubelet e reinicie via systemctl. Então, execute o netshoot novamente; deve funcionar.
 
 
 2. In your cluster, install an ingress controller to proxy communica-
@@ -136,16 +136,16 @@ named hello using the image nginxdemos/hello:plain-text. The container is
 exposed on port 80. Create a Service named hello-svc that targets the hello
 Deployment on port 80. Then create an ingress resource that will allow you to resolve the DNS name hello.com to the ClusterIP Service named hello-svc in Kubernetes.
 
-Resolucao:
+Resolução:
 
-Criar um deployment e expor ele utilizando um service
+Criar um deployment e expô-lo utilizando um service.
 
 ```sh
 kubectl create deploy hello --image=nginxdemos/hello:plain-text --port 80
 kubectl expose deploy hello --name=hello-svc --port=80
 ````
 
-Em seguida criar um ingress apotando pra o svc hello-svc
+Em seguida, criar um ingress apontando para o svc hello-svc.
 
 ```yaml
 apiVersion: networking.k8s.io/v1
@@ -166,7 +166,7 @@ spec:
         pathType: ImplementationSpecific
 ```
 
-Adicionar em /etc/hosts utilizando o mesmo IP do node com o host hello.com
+Adicionar em /etc/hosts utilizando o mesmo IP do node, associado ao host hello.com.
 
 ```
 root@kind-control-plane:/# cat  /etc/hosts
