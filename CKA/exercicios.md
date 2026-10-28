@@ -71,6 +71,28 @@ apache.
 Deployment to Recreate.
 
 
+Practice exercises
+8 Create a Deployment named hello using the image nginxdemos/hello:plain-
+text with the kubectl command line. Expose the Deployment to create a
+ClusterIP Service named hello-svc that can communicate over port 80 using
+the kubectl command line. Use the correct kubectl command to verify that it’s
+a ClusterIP Service with the correct port exposed.
+9 Change the hello-svc Service created in the previous exercise to a NodePort
+Service, where the NodePort should be 30000. Be sure to edit the Service in
+place, without creating a new YAML or issuing a new imperative command.
+Communicate with the pods within the hello Deployment via the NodePort Ser-
+vice using curl.
+10 Install an ingress controller in the cluster using the command kubectl apply -f
+https://raw.githubusercontent.com/chadmcrowell/acing-the-cka-exam/
+main/ch_06/ nginx-ingress-controller.yaml. Change the hello-svc Ser-
+vice back to a ClusterIP Service, and create an ingress resource that will route
+to the hello-svc Service when a client requests hello.com.
+11 Create a new kind cluster without a CNI. Install the bridge CNI, followed by the
+Calico CNI. After installing the CNI, verify that the CoreDNS pods are up and run-
+ning and the nodes are in a ready state.
+
+
+
 
 
 possiveis perguntas do exame
