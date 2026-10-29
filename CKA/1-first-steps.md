@@ -353,8 +353,77 @@ Uma VXLAN fica no topo de uma rede física e usa encapsulação do tunnel layer-
 No cluster, quem faz isso é o CNI (container network Interface), que roda como um daemonset, criando uma camada virtual de rede no namespace, que faz um "meio de campo" entre pacotes indo de um node para outro.
 
 
-### Network Policies 
-Mecanismo para previnir que os pods acessem redes externas, 
-reforcando isolamento a nivel de namespace, 
-filtrando ingress em portas TCP especificas, 
-restringindo comunicacao pod-to-pod 
+### Network Policies
+
+Mecanismo para prevenir que os pods acessem redes externas, reforçando o isolamento a nível de namespace, filtrando ingress em portas TCP específicas e restringindo a comunicação pod-to-pod.
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  annotations:
+  name: default-deny-all
+  namespace: default
+spec:
+  podSelector: {} # caso seja vazio, a policy é aplicada a todos os pods do namespace
+  policyTypes:
+  - Ingress
+  - Egress
+```
+
+Exemplos liberando tráfego de **ingress** (entrada) no pod do nginx e de **egress** (saída) no pod do busybox. Isso significa que, dando um exec no pod do busybox, é possível "chegar" ao pod do nginx.
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  annotations:
+  name: allow-busybox-egress
+  namespace: default
+spec:
+  egress:
+  - ports:
+    - port: 80
+      protocol: TCP
+    to:
+    - podSelector:
+        matchLabels:
+          run: nginx
+  podSelector:
+    matchLabels:
+      run: busybox
+  policyTypes:
+  - Egress
+```
+
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  annotations:
+  name: allow-nginx-ingress
+  namespace: default
+spec:
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          run: busybox
+    ports:
+    - port: 80
+      protocol: TCP
+  podSelector:
+    matchLabels:
+      run: nginx # define um label do pod ao qual será aplicada a NetworkPolicy
+  policyTypes: # define as regras: "ingress", "egress" ou ambas
+  - Ingress
+```
+
+![Exemplo de NetworkPolicy](./img/network-policy-example.png)
+
+#### Tradução
+
+Para os pods "db" ("label role") dentro do namespace "default", permitir receber (ingress) tráfego dos pods com nome "frontend" que estão no namespace "myproject", enquanto estiverem rodando em nodes do CIDR 172.17.0.0/16, com exceção da subnet 172.17.1.0/24. Para o mesmo pod "db" no namespace "default", permitir somente tráfego de saída (egress) para o endereço 10.0.0.0 TCP da porta 5978.
+
+> Cada item em spec.ingress[].from[] é tratado como OR.
