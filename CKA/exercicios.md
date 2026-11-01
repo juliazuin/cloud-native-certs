@@ -195,13 +195,77 @@ kubectl get pods -owide
 4.4. Create a pod named pod-limited with the image httpd, and set the resource requests to 1 for CPU and 100Mi for memory.
 
 4.5. Create a Deployment named overloaded running three replicas of pods. Inside the pod is an initContainer with the native sidecar method (restartPolicy:Always) and a main container. For the sidecar, use the busybox image, and keep it running by issuing the command
-```sh
-/bin/bash sleep 1d
+/bin/bash sleep 1d. Set the CPU requests to 250 millicores and memory requests to 600 mebibytes. For the main container, use the nginx image. Set the CPU requests to 250 millicores and memory requests to 600 mebibytes. See if the pods within the Deployment get to a running state. If not, adjust the requests to get all three replicas up and running.
+
+REsolucao:
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: overloaded
+  name: overloaded
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: overloaded
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: overloaded
+    spec:
+      initContainers:
+      - name: busybox
+        image: busybox:1.28
+        restartPolicy: Always
+        command: ['sh','-c', 'sleep 1d']
+        resources:
+          requests:
+            memory: "600Mi"
+            cpu: "250m"
+      containers:
+      - image: nginx
+        name: nginx
+        resources:
+          requests:
+            memory: "600Mi"
+            cpu: "250m"
+status: {}
 ```
-Set the CPU requests to 250 millicores and memory requests to 600 mebibytes. For the main container, use the nginx image. Set the CPU requests to 250 millicores and memory requests to 600 mebibytes. See if the pods within the Deployment get to a running state. If not, adjust the requests to get all three replicas up and running.
 
-4.6. Create a ConfigMap named ui-data with the following key and value pairs. Apply a ConfigMap to a pod named frontend with the image busybox:1.28, and pass it to the pod via the following environment variables:color.good=purple color.bad=yellow allow.textmode=true how.nice.to.look=fairlyNice
+4.6. Create a ConfigMap named ui-data with the following key and value pairs. Apply a ConfigMap to a pod named frontend with the image busybox:1.28, and pass it to the pod via the following environment variables: color.good=purple color.bad=yellow allow.textmode=true how.nice.to.look=fairlyNice
 
+Resoulcao:
+```sh
+k create cm ui-data --from-literal=color.good=purple --from-literal=color.bad=yellow --from-literal=allow.textmode=true --from-literal=how.nice.to.look=fairlyNice
+````
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    run: pod
+  name: pod
+spec:
+  containers:
+  - command:
+    - sh
+    - -c
+    - env; sleep 8200
+    image: busybox:1.28
+    name: pod
+    resources: {}
+    envFrom:
+    - configMapRef:
+        name: ui-data
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+status: {}
+```
 
 ### **Capítulo 5**
 
@@ -211,20 +275,55 @@ Set the CPU requests to 250 millicores and memory requests to 600 mebibytes. For
 
 5.2. Update the image for the Deployment apache from httpd:latest to httpd:2.4.63. Do not create a new YAML file or edit the existing resource (only use kubectl).
 
+Resolucao:
+
+```sh
+kubectl set image deploy/apache (nome deploy) http=httpd:2.4.63 (nome container=nova versao)
+````
+
+
 5.3. Using kubectl, view the events of the ReplicaSet that was created as a result of the image change from the previous exercise.
 
 5.4. Using kubectl, roll back to the previous version of the Deployment named apache.
 
+Resolucao:
+
+```sh
+kubectl rollout undo deployment/apache
+```
+
 5.5. For the existing Deployment named apache, change the rollout strategy for a Deployment to Recreate.
+
+Resolucao:
+
+Editar o deployment em strategy
+
+```yaml
+  strategy:
+    type: Recreate
+```/ode/
+
 
 5.6. From a three-node cluster, cordon one of the worker nodes. Schedule a pod without a NodeSelector. Uncordon the worker node and edit the pod, applying a new node name to the YAML (set it to the node that was just uncordoned).After replacing the YAML, see if the pod is scheduled to the recently uncordoned node.
 
 5.7. Start a basic nginx Deployment, and remove the taint from the control plane node so that pods don’t need a toleration to be scheduled to it. Add a node selector to the pod spec within the Deployment, and see if the pod is now running on the control plane node.
 
+Resolucao:
+
+Remover taint:
+```sh
+kubectl taint cka-control-plane node-role.kubernetes.io/control-plane:NoSchedule-
+````
+
+Editar deploy incluindo nodeSelector
+
+```yaml
+nodeSelector:
+  kubernetes.io/hostname: cka-control-plane
+````
+
 
 #### Services and Ingress
-
-**Practice exercises**
 
 5.8. Create a Deployment named hello using the image nginxdemos/hello:plaintext with the kubectl command line. Expose the Deployment to create a ClusterIP Service named hello-svc that can communicate over port 80 using the kubectl command line. Use the correct kubectl command to verify that it’s a ClusterIP Service with the correct port exposed.
 
@@ -238,7 +337,6 @@ Set the CPU requests to 250 millicores and memory requests to 600 mebibytes. For
 
 #### Network Policies
 
-**Practice exercises**
 
 6.1. Exec into a pod, and cat out the DNS resolver file to see the IP address of the DNS server that the pod uses to resolve domain names. Open the file that contains the configuration for the kubelet, and change the value for clusterDNS to 100.96.0.10. Save and quit the file.
 
