@@ -131,7 +131,7 @@ O modo de autorização do Kubernetes é configurado no API server com o parâme
 
 Como o RBAC funciona com base no menor acesso possível, ele sabe quais são as ações permitidas para o usuário ou grupo, com base em 4 tipos diferentes de objetos: Roles, ClusterRoles, RoleBindings e ClusterRoleBindings.
 
-[roles-demo](./img/roles-cluster-role.png)
+![roles-demo](./img/roles-cluster-role.png)
 
 
 Uma role tem escopo de um namespace específico que define permissões para recursos específicos, como pods. Cada role lista ações de "allow" utilizando verbos (GET, LIST, CREATE, DELETE), que serão traduzidos em operações de API. Eles não são os mesmos que métodos HTTP, embora sejam conceitualmente similares.
@@ -427,3 +427,5 @@ spec:
 Para os pods "db" ("label role") dentro do namespace "default", permitir receber (ingress) tráfego dos pods com nome "frontend" que estão no namespace "myproject", enquanto estiverem rodando em nodes do CIDR 172.17.0.0/16, com exceção da subnet 172.17.1.0/24. Para o mesmo pod "db" no namespace "default", permitir somente tráfego de saída (egress) para o endereço 10.0.0.0 TCP da porta 5978.
 
 > Cada item em spec.ingress[].from[] é tratado como OR.
+
+pagina 215 ou 193
