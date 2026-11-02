@@ -112,7 +112,7 @@ kubectl auth can-i create deployments --namespace=kube-system --as system:servic
 
 4.2. Edit the fast pod using kubectl edit po fast, and change the node selector to disktype=slow. Notice that the pod cannot be changed and the YAML was saved to a temporary location. Take the YAML in /tmp/, and apply it by force to delete and recreate the pod using a single imperative command.
 
-4.3. Create a new pod named ssd-pod using the nginx image, and use node affinity to select nodes based on a weight of 1 to nodes that have a label disktype=ssd. If the selection criteria doesn’t match, alternatively it can choose nodes that   have a label kubernetes.io/os=linux
+4.3. Create a new pod named ssd-pod using the nginx image, and use node affinity to select nodes based on a weight of 1 to nodes that have a label disktype=ssd. If the selection criteria doesn’t match, alternatively it can choose nodes that have a label kubernetes.io/os=linux
 
 
 **Resolução:**
@@ -197,7 +197,7 @@ kubectl get pods -owide
 4.5. Create a Deployment named overloaded running three replicas of pods. Inside the pod is an initContainer with the native sidecar method (restartPolicy:Always) and a main container. For the sidecar, use the busybox image, and keep it running by issuing the command
 /bin/bash sleep 1d. Set the CPU requests to 250 millicores and memory requests to 600 mebibytes. For the main container, use the nginx image. Set the CPU requests to 250 millicores and memory requests to 600 mebibytes. See if the pods within the Deployment get to a running state. If not, adjust the requests to get all three replicas up and running.
 
-REsolucao:
+**Resolução:**
 
 ```yaml
 apiVersion: apps/v1
@@ -238,10 +238,10 @@ status: {}
 
 4.6. Create a ConfigMap named ui-data with the following key and value pairs. Apply a ConfigMap to a pod named frontend with the image busybox:1.28, and pass it to the pod via the following environment variables: color.good=purple color.bad=yellow allow.textmode=true how.nice.to.look=fairlyNice
 
-Resoulcao:
+**Resolução:**
 ```sh
 k create cm ui-data --from-literal=color.good=purple --from-literal=color.bad=yellow --from-literal=allow.textmode=true --from-literal=how.nice.to.look=fairlyNice
-````
+```
 
 ```yaml
 apiVersion: v1
@@ -275,18 +275,20 @@ status: {}
 
 5.2. Update the image for the Deployment apache from httpd:latest to httpd:2.4.63. Do not create a new YAML file or edit the existing resource (only use kubectl).
 
-Resolucao:
+**Resolução:**
+
 
 ```sh
 kubectl set image deploy/apache (nome deploy) http=httpd:2.4.63 (nome container=nova versao)
-````
+```
 
 
 5.3. Using kubectl, view the events of the ReplicaSet that was created as a result of the image change from the previous exercise.
 
 5.4. Using kubectl, roll back to the previous version of the Deployment named apache.
 
-Resolucao:
+**Resolução:**
+
 
 ```sh
 kubectl rollout undo deployment/apache
@@ -294,33 +296,35 @@ kubectl rollout undo deployment/apache
 
 5.5. For the existing Deployment named apache, change the rollout strategy for a Deployment to Recreate.
 
-Resolucao:
+**Resolução:**
+
 
 Editar o deployment em strategy
 
 ```yaml
   strategy:
     type: Recreate
-```/ode/
+```
 
 
 5.6. From a three-node cluster, cordon one of the worker nodes. Schedule a pod without a NodeSelector. Uncordon the worker node and edit the pod, applying a new node name to the YAML (set it to the node that was just uncordoned).After replacing the YAML, see if the pod is scheduled to the recently uncordoned node.
 
 5.7. Start a basic nginx Deployment, and remove the taint from the control plane node so that pods don’t need a toleration to be scheduled to it. Add a node selector to the pod spec within the Deployment, and see if the pod is now running on the control plane node.
 
-Resolucao:
+**Resolução:**
+
 
 Remover taint:
 ```sh
 kubectl taint cka-control-plane node-role.kubernetes.io/control-plane:NoSchedule-
-````
+```
 
 Editar deploy incluindo nodeSelector
 
 ```yaml
 nodeSelector:
   kubernetes.io/hostname: cka-control-plane
-````
+```
 
 
 #### Services and Ingress
@@ -352,7 +356,7 @@ nodeSelector:
 
 6.7. Using the netshoot pod created in the previous exercise, locate the Service in the default namespace by its DNS name. Use as few letters as possible for DNS search functionality.
 
-6.8 Create a Deployment named hello using the image nginxdemos/hello:plaintext with the kubectl command line. Expose the Deployment to create a ClusterIP Service named hello-svc that can communicate over port 80 using the kubectl command line. Use the correct kubectl command to verify that it’s a ClusterIP Service with the correct port exposed.
+6.8. Create a Deployment named hello using the image nginxdemos/hello:plaintext with the kubectl command line. Expose the Deployment to create a ClusterIP Service named hello-svc that can communicate over port 80 using the kubectl command line. Use the correct kubectl command to verify that it’s a ClusterIP Service with the correct port exposed.
 
 6.9. Change the hello-svc Service created in the previous exercise to a NodePort Service, where the NodePort should be 30000. Be sure to edit the Service in place, without creating a new YAML or issuing a new imperative command. Communicate with the pods within the hello Deployment via the NodePort Service using curl.
 
@@ -366,10 +370,30 @@ Calico CNI. After installing the CNI, verify that the CoreDNS pods are up and ru
 
 #### Gateway API
 
-**Practice exercises**
 
-13. Create a kind cluster with an ingress controller and Gateway API CRDs added, as instructed in appendix B. Once the cluster is up and running, create a new namespace named app-space. In the app-space namespace, create a pod named simple-web that uses the nginx image. Expose the pod, creating a Service named simple-web on port 80. Create an ingress resource in the app-space namespace named simple-web-ingress that maps / to the simple-web Service on port 80. Use host web.example.com. Set up a Gateway resource named web-gateway that listens on port 80 (HTTP). Create an HTTPRoute resource named simple-web-route that matches the host web.example.com. Forward the traffic to the simple-web Service. Modify the HTTPRoute so that only traffic to the /app path is allowed. Compare the ingress resource and the HTTPRoute, and notice the differences.
+6.13. Create a kind cluster with an ingress controller and Gateway API CRDs added, as instructed in appendix B. Once the cluster is up and running, create a new namespace named app-space. In the app-space namespace, create a pod named simple-web that uses the nginx image. Expose the pod, creating a Service named simple-web on port 80. Create an ingress resource in the app-space namespace named simple-web-ingress that maps / to the simple-web Service on port 80. Use host web.example.com. Set up a Gateway resource named web-gateway that listens on port 80 (HTTP). Create an HTTPRoute resource named simple-web-route that matches the host web.example.com. Forward the traffic to the simple-web Service. Modify the HTTPRoute so that only traffic to the /app path is allowed. Compare the ingress resource and the HTTPRoute, and notice the differences.
 
+
+### **Capítulo 7**
+
+#### PV, PVC
+
+7.1. Create a PV named volstore308 that reserves 22 MB of storage and does not specify a storage class. The volume will use the storage from the host at /mnt/data.
+
+7.2. Create a PVC named pv-claim-vol that will claim the previously created PV
+with the correct access mode.
+
+7.3. Create a pod named pod-access with the image centos:7 that will use the PVC from the previous step and mount the volume inside the container at /tmp/persistence. Issue a command to keep the container alive. You can use sleep 3600.
+
+7.4. Create a storage class named node-local that uses the provisioner kubernetes.io/no-provisioner. The volume binding mode should be WaitForFirstConsumer.
+
+7.5. Create a PVC named claim-sc that will claim 39 MB of volume from the previously created class. The access mode should be ReadWriteOnce.
+
+7.6. Create a pod named pod-sc with the image nginx that will use the PVC from the previous step, and mount the volume inside the container at /usr/nginx/www/html.
+
+7.7. Create a pod named shared-pod-data with two containers. The first container will be named busybox and will use the image busybox:1.28 with a command sleep 3600. The second container will be named httpd and will use the image
+httpd:alpine3.17. Both containers should access the same volume that is shared from local storage on the container itself.
+Container1 will mount the volume to /html/, and Container2 will mount the volume to /var/www/html/. Start up the pod, and ensure everything is mounted and shared correctly.
 
 
 ## Possíveis perguntas do exame
@@ -383,7 +407,7 @@ O node worker-1 tem 500 MB de memória e 0.5 de CPU disponível. Schedule um pod
 
 ### Operators
 
-**Practice exercises**
+#### Practice exercises
 
 8. Install operator https://cert-manager.io/, a CNCF project used to generate
 a TLS certificate for Kubernetes workloads. Navigate the documentation, and
@@ -404,7 +428,7 @@ of Argo CD, and see whether the operator is running.
 
 ### DNS and kubelet configuration
 
-**Practice exercises**
+#### Practice exercises
 
 1. Exec into a pod, and cat out the DNS resolver file to see the IP address of the
 DNS server that the pod uses to resolve domain names.
@@ -468,3 +492,12 @@ so that the kubelet is updated in place and immediately reflected. Upgrade
 the node to receive the new kubelet configuration. Finally, test this by creat-
 ing a new pod and verifying that the pod has the new IP address of the DNS
 Service.
+
+EXAM TASK In your cluster, configure a hostPath PV named vol02833 with a
+size of 100 MB of local storage from the worker node host node01. The direc-
+tory on the host should be /mnt/data. Create a PVC named claim-02833 that
+will reserve 90 MB of storage from the volume vol02833. Mount it to a pod
+
+within a Deployment named frontend0113; the mount path within the con-
+tainer should be /usr/share/nginx/html. The name of the YAML file should
+be deploy.yaml.

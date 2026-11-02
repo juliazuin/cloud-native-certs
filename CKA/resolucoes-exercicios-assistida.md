@@ -193,11 +193,138 @@ fc00:f853:ccd:e793::2	kind-control-plane
 `curl hello.com`
 
 
-## 3. Configurar a Gateway API
-
-Set up the Gateway API to use the controller named example.com/
-example-controller over the HTTP protocol on port 80 to send all traffic of
-the www.example.com website to the Service apache-svc on namespace default
-over port 8080.
+## 3
+In your cluster, configure a hostPath PV named vol02833 with a size of 100 MB of local storage from the worker node host node01. The directory on the host should be /mnt/data. Create a PVC named claim-02833 that will reserve 90 MB of storage from the volume vol02833. Mount it to a pod within a Deployment named frontend0113; the mount path within the container should be /usr/share/nginx/html. The name of the YAML file should
+be deploy.yaml.
 
 ### Resolução
+
+Criar um PV de nome `vol02833` com storage de 100Mi
+
+```yaml
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: vol02833
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 100Mi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt/data"
+```
+
+Depois criar um PVC de nome `claim-02833` com 90Mi de storage reservado
+
+```yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: claim-02833
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 90Mi
+```
+
+Então criar o deployment de nome `frontend0113` montando o volume do PVC:
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: frontend0113
+  name: frontend0113
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend0113
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: frontend0113
+    spec:
+      containers:
+      - image: nginx
+        name: nginx
+        resources: {}
+        volumeMounts:
+        - name: vol-33 - nomes iguais
+          mountPath: "/usr/share/nginx/html" - mountPath especificado na questao
+      volumes:
+      - name: vol-33 - nomes iguais
+        persistentVolumeClaim:
+          claimName: claim-02833 - nome do PVC
+```
+
+
+## 4
+In cluster ek8s, create a PVC named claim-03833 based on an existing storage class named standard. Claim 1 GB of storage space. Mount it
+to a pod within a Deployment named backend0113; the mount path within the container should be /var/lib/mysql. The name of the YAML file should be backend.yaml.
+
+Resolução:
+
+```yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: claim-03833
+spec:
+  storageClassName: standard
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+```
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: backend0113
+  name: backend0113
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend0113
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: backend0113
+    spec:
+      containers:
+      - image: mysql:8.0
+        name: mysql
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: password
+        ports:
+        - containerPort: 3306
+        resources: {}
+        volumeMounts:
+        - name: mysqldata
+          mountPath: "/var/lib/mysql"
+      volumes:
+      - name: mysqldata
+        persistentVolumeClaim:
+          claimName: claim-03833
+```
+
+## 5
+In cluster ek8s, create a pod named log-collector that uses a volume with type emptyDir named logvol. Mount the volume in the container at /var/log. The name of the YAML file should be log-collector.yaml.
+
+Resolução:
